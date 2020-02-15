@@ -26,6 +26,11 @@ class User extends Model {
     return this;
   }
 
+  static associate(models) {
+    this.belongsTo(models.File, { foreignKey: 'avatar_id', as: 'avatar'});
+    // belongsTo deve receber models.xxx, onde xxx é uma subclasse de Sequelize.Models
+  }
+
   checkPassword(senha) {
     return bcrypt.compare(senha, this.password_hash);
   }
