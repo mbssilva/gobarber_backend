@@ -11,7 +11,8 @@ import File from '../models/File';
 import Notification from '../schemas/Notification';
 
 // Importando objeto de envio de email
-import Mail from '../../lib/Mail';
+import CancellationMail from '../jobs/CancellationMail';
+import Queue from '../../lib/Queue';
 
 class AppointmentController {
   async index(req, res) {
@@ -22,7 +23,7 @@ class AppointmentController {
       order: ['date'],
       limit: 20,
       offset: (page - 1)*20,
-      attributes: ['id', 'user_id', 'date', 'updated_at'],
+      attributes: ['id', 'user_id', 'date', 'updated_at', 'past', 'cancelable'],
       include: [
         {
           model: User,
@@ -100,7 +101,7 @@ class AppointmentController {
 
     const user = await User.findByPk(req.userId);
     const formattedDate = format(hourStart, "'dia' dd 'de' MMMM', às' H:mm'h'", {
-      locale: pt
+      locale: pt // Português
     });
 
     await Notification.create({
@@ -118,9 +119,18 @@ class AppointmentController {
           model: User,
           as: 'provider',
           attributes: ['name', 'email']
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['name']
         }
       ]
     });
+
+    if (appointment.canceled_at) {
+      return res.status(400).json({ error: 'This appointment has already been canceled' });
+    }
 
     if (appointment.user_id !== req.userId) {
       return res.status(401).json({
@@ -138,11 +148,10 @@ class AppointmentController {
 
     await appointment.save();
 
-    await Mail.sendMail({
-      to: `${appointment.provider.name} <${appointment.provider.email}>`,
-      subject: 'Agendamento cancelado',
-      text: 'Você tem um novo cancelamento',
+    await Queue.add(CancellationMail.key, {
+      appointment
     });
+
 
     return res.json(appointment);
   }
