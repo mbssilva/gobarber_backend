@@ -8,7 +8,7 @@ import File from '../models/File';
 class ScheduleController {
   async index(req, res) {
     const isProvider = await User.findOne({
-      where: {id: req.userId, provider: true}
+      where: { id: req.userId, provider: true },
     });
 
     if (!isProvider) {
@@ -18,16 +18,15 @@ class ScheduleController {
     const { date } = req.query;
     const parsedDate = parseISO(date);
 
-
     const appointments = await Appointment.findAll({
       where: {
         provider_id: req.userId,
         canceled_at: null,
         date: {
-          [Op.between]: [startOfDay(parsedDate), endOfDay(parsedDate)]
+          [Op.between]: [startOfDay(parsedDate), endOfDay(parsedDate)],
         },
       },
-      order: ['date']
+      order: ['date'],
     });
 
     return res.json(appointments);

@@ -3,7 +3,8 @@ import pt from 'date-fns/locale/pt';
 import Mail from '../../lib/Mail';
 
 class CancellationMail {
-  get key () { // Nome que será usado na ligação com a DB
+  get key() {
+    // Nome que será usado na ligação com a DB
     return 'CancellationMail';
   }
 
@@ -13,14 +14,12 @@ class CancellationMail {
     const { appointment } = data;
 
     const day = format(parseISO(appointment.date), "dd 'de' MMMM", {
-      locale: pt // Português
+      locale: pt, // Português
     });
 
-    const hour = format(parseISO(appointment.date), "H:mm", {
-      locale: pt // Português
+    const hour = format(parseISO(appointment.date), 'H:mm', {
+      locale: pt, // Português
     });
-
-    console.log(day, hour);
 
     await Mail.sendMail({
       to: `${appointment.provider.name} <${appointment.provider.email}>`,
@@ -30,10 +29,9 @@ class CancellationMail {
         providerName: appointment.provider.name,
         userName: appointment.user.name,
         day,
-        hour
-      }
+        hour,
+      },
     });
-
   }
 }
 
