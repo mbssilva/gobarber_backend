@@ -4,7 +4,7 @@ import Mail from '../../lib/Mail';
 
 class CancellationMail {
   get key() {
-    // Nome que será usado na ligação com a DB
+    // Nome que será usado na ligação com o Redis
     return 'CancellationMail';
   }
 

@@ -12,6 +12,7 @@ import Notification from '../schemas/Notification';
 
 // Importando objeto de envio de email
 import CancellationMail from '../jobs/CancellationMail';
+
 import Queue from '../../lib/Queue';
 
 class AppointmentController {
