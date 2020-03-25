@@ -3,6 +3,7 @@ import * as Yup from 'yup';
 
 // Importando model do controller
 import User from '../models/User';
+import File from '../models/File';
 
 class UserController {
   async store(req, res) {
@@ -71,13 +72,24 @@ class UserController {
       return res.status(401).json({ error: 'Password does not match' });
     }
 
-    const { name, provider } = await usuario.update(req.body);
+    await usuario.update(req.body);
+
+    const { name, provider, avatar } = await User.findByPk(id, {
+      include: [
+        {
+          model: File,
+          as: 'avatar',
+          attributes: ['id', 'path', 'url'],
+        },
+      ],
+    });
 
     return res.json({
       id,
       name,
       email,
       provider,
+      avatar,
     });
   }
 }
